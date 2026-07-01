@@ -1,0 +1,10 @@
+model orderItems {
+  id        String   @id @default(cuid())
+  orderId   String
+  ticketId  String
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  createdBy String   @db.VarChar(50)
+  order     Orders   @relation(fields: [orderId], references: [id])
+}

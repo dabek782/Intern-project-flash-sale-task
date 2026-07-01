@@ -1,0 +1,29 @@
+model Ticket {
+  id        String   @id @default(cuid())
+  title     String
+  description String
+  price     Float
+  quantity  Int @default(1)
+  name      String
+  type      TicketType
+  eventId   String
+  event     Events   @relation(fields: [eventId], references: [id])
+  companyId Int
+  company   Company  @relation(fields: [companyId], references: [id])
+  status    TicketStatus @default(OPEN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Orders[]
+
+  @@map("ticket")
+}
+
+enum TicketStatus {
+  OPEN
+  CLOSED
+}
+enum TicketType {
+  VIP
+  REGULAR
+  EARLY_BIRD
+}

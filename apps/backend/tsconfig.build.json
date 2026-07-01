@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "node_modules",
+    "test",
+    "dist",
+    "**/*spec.ts",
+    ".prettierrc.mjs",
+    "eslint.config.mjs",
+    "jest.config.mjs",
+    "jest.config.ts",
+  ],
+  "compilerOptions": {
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "strictNullChecks": true,
+  },
+}

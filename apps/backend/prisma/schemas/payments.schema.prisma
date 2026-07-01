@@ -1,0 +1,16 @@
+model Payments {
+    id         String   @id @default(cuid())
+    orderId    String   @unique
+    provider   String
+    status     PaymentStatus @default(PENDING)
+    createdAt  DateTime @default(now())
+    createdBy  String   @db.VarChar(50)
+
+    order      Orders   @relation(fields: [orderId], references: [id])
+}
+
+enum PaymentStatus {
+    PENDING
+    COMPLETED
+    FAILED
+}

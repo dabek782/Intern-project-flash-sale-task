@@ -1,0 +1,23 @@
+model Orders {
+    id         String   @id
+    userId     String
+    eventId    String
+    ticketId   String
+    status     OrderStatus @default(PENDING)
+    createdAt  DateTime @default(now())
+    createdBy  String   @db.VarChar(50)
+
+    user       User     @relation(fields: [userId], references: [id])
+    event      Events   @relation(fields: [eventId], references: [id])
+    ticket     Ticket   @relation(fields: [ticketId], references: [id])
+
+    orderItems orderItems[]
+
+    payment    Payments?
+}
+
+enum OrderStatus {
+    PENDING
+    COMPLETED
+    CANCELLED
+}

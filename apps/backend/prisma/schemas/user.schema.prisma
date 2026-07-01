@@ -1,0 +1,21 @@
+model User {
+  id         String    @id @default(cuid())
+  email      String    @unique
+  password   String    @db.VarChar(255)
+  firstName  String    @db.VarChar(50)
+  lastName   String    @db.VarChar(50)
+  createdAt  DateTime  @default(now())
+  createdBy  String    @db.VarChar(50) @default("system")
+  status     status    @default(ACTIVE)
+  orders     Orders[]
+  updatedAt  DateTime  @updatedAt
+  updatedBy  String    @db.VarChar(50) @default("system")
+  companies  Company?
+
+  @@map("user")
+}
+
+enum status {
+  ACTIVE
+  INACTIVE
+}

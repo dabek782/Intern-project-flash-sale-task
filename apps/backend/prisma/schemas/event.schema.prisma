@@ -1,0 +1,25 @@
+model Events {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  eventVenue   String
+  venueAddress String
+  timezone     DateTime @db.Timestamp(6)
+  status       EventStatus @default(ACTIVE)
+  startDate   DateTime @db.Timestamp(6)
+  endDate     DateTime @db.Timestamp(6)
+  location    String
+  tickets     Ticket[]
+  companyId     Int
+  company      Company  @relation(fields: [companyId], references: [id])
+  orders      Orders[]
+  createdAt   DateTime @default(now())
+  @@map("events")
+  }
+  enum EventStatus {
+    CLOSED
+    ACTIVE
+    CANCELLED
+    
+
+  }
