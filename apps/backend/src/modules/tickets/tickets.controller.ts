@@ -9,7 +9,7 @@ import { UpdateTicketDto } from './dto/update-ticket.dto';
 })
 export class TicketsController {
   constructor(private readonly ticketsService: TicketsService) {}
-
+  
   @Post()
   create(@Body() createTicketDto: CreateTicketDto) {
     return this.ticketsService.create(createTicketDto);
@@ -39,4 +39,9 @@ export class TicketsController {
   remove(@Param('id') id: string) {
     return this.ticketsService.remove(id);
   }
+  @Get('ticket/:userId')
+  getAllCompanyTickets(@Param('userId') userId: string) {
+    return this.ticketsService.getAllCompanyTickets(userId);
+  }
 }
+//tickets controller provides endpoint for specified tickets requests

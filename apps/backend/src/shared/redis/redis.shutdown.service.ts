@@ -14,3 +14,5 @@ export class RedisShutdownService implements OnApplicationShutdown {
     }
   }
 }
+
+//redis.shutdown.service allows for gracefully shutting down redis

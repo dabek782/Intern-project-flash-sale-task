@@ -23,18 +23,13 @@ import {
 export default function CreateCompanyPage() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  
-  // Form State
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [email, setEmail] = useState("");
-  
-  // Status State
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  // Check auth and grab email on mount
   useEffect(() => {
     if (typeof document === "undefined") return;
     
@@ -43,13 +38,45 @@ export default function CreateCompanyPage() {
     setIsLoggedIn(signedIn);
 
     if (!signedIn) {
-      router.push("/login"); // Redirect if not logged in
+      router.push("/login");
       return;
     }
 
+    let currentEmail = "";
     const emailCookie = cookies.find((c) => c.startsWith("bookit-user-email="));
     if (emailCookie) {
-      setEmail(decodeURIComponent(emailCookie.split("=")[1]));
+      currentEmail = decodeURIComponent(emailCookie.split("=")[1]);
+      setEmail(currentEmail);
+    }
+      
+    const checkUserCompanyAndRedirect = async (targetEmail: string) => {
+      if (!targetEmail) return;
+      try {
+        const response = await fetch(`http://localhost:3000/v3/companies/email/${targetEmail}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include"
+        })
+        console.log(targetEmail)
+        if (response.ok) {
+          const data = await response.json();
+          const userId = data.userId;
+          console.log(userId)
+          if (userId) {
+            router.push(`/dashboard/${userId}`);
+          }
+        } else {
+          console.error("Company not found or user context registration is required.");
+        }
+      } catch (error) {
+        console.error("Network error while fetching company:", error);
+      }
+    };
+
+    if (currentEmail) {
+      checkUserCompanyAndRedirect(currentEmail);
     }
   }, [router]);
 
@@ -59,15 +86,15 @@ export default function CreateCompanyPage() {
     setError(null);
 
     try {
-        console.log(`${document.cookie.split('; ').find((c) => c.startsWith('bookit-access-token='))?.split('=')[1]}` )
       const res = await fetch("http://localhost:3000/v3/companies", {
         method: "POST",
-        headers: { "Content-Type": "application/json" , "Authorization": `Bearer ${document.cookie.split('; ').find((c) => c.startsWith('bookit-access-token='))?.split('=')[1]}` },
-        credentials: "include",
+        headers: { "Content-Type": "application/json"},
         body: JSON.stringify({
           name,
           description,
-          email,}),
+          email,
+        }),
+        credentials: "include",
       });
 
       if (!res.ok) {
@@ -76,10 +103,15 @@ export default function CreateCompanyPage() {
       }
 
       setSuccess(true);
-      
 
       setTimeout(() => {
-        router.push("/dashboard"); 
+        const userIdCookie = document.cookie.split('; ').find((c) => c.startsWith('bookit-user-id='));
+        const userId = userIdCookie ? userIdCookie.split('=')[1] : null;
+        if (userId) {
+          router.push(`/dashboard/${userId}`);
+        } else {
+          router.push("/");
+        }
       }, 2000);
 
     } catch (err: any) {
@@ -91,7 +123,6 @@ export default function CreateCompanyPage() {
 
   return (
     <main className="min-h-screen text-muted-foreground overflow-y-auto pb-12 bg-slate-50/50">
-      {/* Navigation */}
       <nav className="border-b border-gray-400 px-5 py-5 flex flex-row justify-between rounded-md shadow-xl m-auto mb-10 bg-white">
         <div 
           className="text-2xl font-bold hover:scale-125 transition-transform duration-200 cursor-pointer text-slate-900" 
@@ -121,7 +152,6 @@ export default function CreateCompanyPage() {
         </NavigationMenu>
       </nav>
 
-      {/* Page Header */}
       <section className="max-w-270 mx-auto px-6 mb-8 text-center">
         <h1 className="text-4xl font-bold text-slate-800 mb-4">Become an Organizer</h1>
         <p className="text-slate-600 text-lg max-w-180 mx-auto">
@@ -129,7 +159,6 @@ export default function CreateCompanyPage() {
         </p>
       </section>
 
-      {/* Form Section */}
       <section className="max-w-xl mx-auto px-6">
         <Card className="w-full shadow-lg border-slate-200">
           <CardHeader>
@@ -141,14 +170,12 @@ export default function CreateCompanyPage() {
 
           <form onSubmit={handleCreateCompany}>
             <CardContent className="flex flex-col gap-5">
-              {/* Error Message */}
               {error && (
                 <div className="p-3 bg-red-50 text-red-600 border border-red-200 rounded-md text-sm">
                   {error}
                 </div>
               )}
 
-              {/* Success Message */}
               {success && (
                 <div className="p-3 bg-green-50 text-green-700 border border-green-200 rounded-md text-sm font-medium">
                   Company created successfully! Redirecting to your dashboard...
@@ -221,3 +248,5 @@ export default function CreateCompanyPage() {
     </main>
   );
 }
+
+//company/page.tsx file allows for creation of company. Given company has email the same as its creator so if you have company already made you will be redirected to dashboard/[userId]/page/tsx. In creation of company you can choose your own title as well as description. Shadcn componets work and i dont'know why they are giving me errors but they're fine

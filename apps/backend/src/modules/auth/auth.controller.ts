@@ -21,11 +21,13 @@ export class AuthController {
 	@Post('login')
 	async login(@Body() loginUserDto: LoginUserDto, @Res({ passthrough: true }) res: Response) {
   		const token = await this.authService.login(loginUserDto);
-		res.cookie('bookit-access-token', token, {
+		const tokenString = token.accessToken;
+		res.cookie('bookit-access-token', tokenString, {
 			httpOnly: true,
 			sameSite: 'lax',
 			maxAge: 1000 * 60 * 60 * 24, 
 		});
+
   		return { message: 'Logged in successfully' };
 }
 
@@ -40,3 +42,5 @@ export class AuthController {
 		return { accessToken: newAccessToken };
 	}
 }
+
+//auth controller provides endpoints for authorization functionality jwt tokens is stored in http cookie which frontend does not have access. because of that it prevents  Cross-Site Scripting 

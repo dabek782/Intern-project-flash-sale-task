@@ -43,4 +43,9 @@ export class EventsController {
   changeStatus(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
     return this.eventsService.update(id, updateEventDto);
   }
+  @Get('user/:userId')
+  getAllCompanyEvents(@Param('userId') userId: string) {
+    return this.eventsService.getAllCompanyEvents(userId);  
 }
+}
+// events controller specifes endpoints for events specified request

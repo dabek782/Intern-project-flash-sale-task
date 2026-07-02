@@ -4,7 +4,6 @@ model Events {
   description String
   eventVenue   String
   venueAddress String
-  timezone     DateTime @db.Timestamp(6)
   status       EventStatus @default(ACTIVE)
   startDate   DateTime @db.Timestamp(6)
   endDate     DateTime @db.Timestamp(6)

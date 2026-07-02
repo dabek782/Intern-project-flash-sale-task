@@ -29,3 +29,5 @@ import { RedisShutdownService } from './redis.shutdown.service';
   exports: [REDIS_CLIENT],
 })
 export class RedisModule {}
+
+  

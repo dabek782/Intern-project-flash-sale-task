@@ -21,3 +21,5 @@ import { PrismaPg } from '@prisma/adapter-pg';
   exports: [PrismaClient],
 })
 export class PrismaModule {}
+
+//prisma module was a configuration file that gives prisma connection to database

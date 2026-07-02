@@ -30,7 +30,7 @@ export class EventsService {
   }
 
   findAll(): Promise<Events[]> {
-    return this.prisma.events.findMany();
+    return this.prisma.events.findMany({include:{tickets:true}});
   }
 
   async findOne(id: string): Promise<Events> {
@@ -70,4 +70,17 @@ export class EventsService {
       data,
     });
   }
+  async getAllCompanyEvents(userId: string): Promise<Events[]> {
+   const company = await this.prisma.company.findFirst({
+      where: { createdBy: userId },
+    });
+    const companyId = company?.id;
+    console.log(companyId)
+    const eventsOfThatCompany = await this.prisma.events.findMany({
+      where:{companyId:companyId}
+    });
+    return eventsOfThatCompany;
+  }
 }
+
+// events services allows for creating as well as searching specified events

@@ -123,3 +123,5 @@ export class AuthService {
     return `auth:session:${userId}`;
   }
 }
+
+//auth service is file that provides functionality to our endpoints each user when he registers and than logins is gets refresh token that is stored in redis.

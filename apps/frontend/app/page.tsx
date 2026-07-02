@@ -50,13 +50,13 @@ export default function Home() {
       <nav className="border-b border-gray-400 px-5 py-5 flex flex-row justify-between rounded-md shadow-xl m-auto " >
       
           <div className="text-2xl font-bold hover:scale-125 transition-transform  duration-200">Bookit</div>
-          <NavigationMenu>
+          <NavigationMenu className="flex flex-row gap-4 ">
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuLink onClick={(e)=>{
                   e.preventDefault();
                   router.push("/");
-                }}className="text-lg font-semibold hover:scale-115 transition-transform duration-200">
+                }}className="text-blue-600 hover:text-blue-700 text-lg font-semibold hover:scale-115 transition-transform duration-200 ">
                   Home
                 </NavigationMenuLink>
               </NavigationMenuItem>
@@ -81,7 +81,7 @@ export default function Home() {
                 </>
               ) : (
                 <NavigationMenuItem>
-                  <NavigationMenuLink
+                  <NavigationMenuLink className="text-lg font-semibold hover:scale-115 transition-transform duration-200"
                     href="#"
                     onClick={async (e) => {
                       e.preventDefault();
@@ -106,9 +106,22 @@ export default function Home() {
                     }}
                   >
                     Sign out
-                  </NavigationMenuLink>
+   
+                </NavigationMenuLink>
                 </NavigationMenuItem>
+                
               )}
+              {isLoggedIn && 
+                <NavigationMenuItem>    
+                 <NavigationMenuLink onClick={(e) => {
+                      e.preventDefault();
+                      router.push("/events");
+                    }} className="text-lg font-semibold hover:scale-115 transition-transform duration-200">
+                      Events
+                      
+                    </NavigationMenuLink>
+                    </NavigationMenuItem>
+              }
             </NavigationMenuList>
           </NavigationMenu>
       </nav>
@@ -169,3 +182,5 @@ export default function Home() {
     </main>
   );
 }
+
+//page.tsx is home page for that project. From this site you can see what events are on the site as well as you can register and login. My project uses shacn/ui components but i have errors with importing them even though site is functional and working

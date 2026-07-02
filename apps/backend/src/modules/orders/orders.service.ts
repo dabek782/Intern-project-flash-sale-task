@@ -2,7 +2,7 @@ import { ConflictException, Inject, Injectable, NotFoundException } from '@nestj
 import { PrismaClient } from '@prisma/client';
 import { REDIS_CLIENT } from '../../shared/redis/redis.constants';
 import { RedisClientType } from 'redis';
-
+import { TicketsGateway } from '../tickets/gateway/tickets.gateway';
 const RESERVATION_TTL_SECONDS = 5 * 60;
 const LOCK_TTL_MS = 5000;
 
@@ -11,6 +11,7 @@ export class OrdersService {
   constructor(
     private readonly prisma: PrismaClient,
     @Inject(REDIS_CLIENT) private readonly redisClient: RedisClientType,
+    private readonly ticketsGateway: TicketsGateway
   ) {
     setInterval(() => {
       void this.releaseExpiredReservations();
@@ -24,7 +25,7 @@ export class OrdersService {
     if (!ticket) {
       throw new NotFoundException(`Ticket with id ${ticketId} not found`);
     }
-
+    console.log(userId)
     if (ticket.status !== 'OPEN') {
       throw new ConflictException('Ticket is not available for reservation');
     }
@@ -57,14 +58,13 @@ export class OrdersService {
           where: { id: ticketId },
           data: { quantity: { decrement: 1 } },
         });
-
+        this.ticketsGateway.broadcastTicketUpdate(updatedTicket.id, updatedTicket.quantity);
         const order = await tx.orders.create({
           data: {
             id: `order_${Date.now()}_${Math.random().toString(16).slice(2)}`,
             userId: userId,
             eventId: updatedTicket.eventId,
             ticketId: updatedTicket.id,
-            status: 'PENDING',
             createdBy: userId,
           },
         });
@@ -200,4 +200,30 @@ export class OrdersService {
       });
     }
   }
+  async getMyOrders(userId: string) {
+    return this.prisma.orders.findMany({
+      where: { userId },
+      include: {
+        event: true,
+        ticket: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+
+  async getTicketsSoldByCompany(companyId: number) {
+    const soldCount = await this.prisma.orders.count({
+      where: {
+        status: 'COMPLETED',
+        event: {
+          companyId: companyId 
+        }
+      }
+    });
+    return { quantity: soldCount };
+  }
 }
+
+
+//in orders.service.ts there many transaction utiled between different tables . That allows for smooth reserving and paying for order. In reserving flow redis is heavily utilized for giving a timer of how long given paymanet must last. When timer hits 5 minutes the order is automaticly cancelled

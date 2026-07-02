@@ -17,9 +17,6 @@ export class CreateTicketDto {
   @IsNumber()
   quantity!: number;
 
-  @IsString()
-  @IsNotEmpty()
-  name!: string;
 
   @IsEnum(TicketType)
   type!: TicketType;

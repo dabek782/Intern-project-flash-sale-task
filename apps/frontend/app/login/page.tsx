@@ -32,6 +32,7 @@ export default function RegisterPage() {
           email,
           password,
         }),
+        credentials:'include'
       });
 
       if (!res.ok) {
@@ -70,7 +71,7 @@ export default function RegisterPage() {
               onClick={() => router.push("/register")}
               className="text-blue-500 hover:underline font-medium px-10"
             >
-              Log In
+              Register in
             </button>
           </p>
           </CardDescription>
@@ -129,3 +130,4 @@ export default function RegisterPage() {
     </main>
   );
 }
+//Login/page.tsx is standart login page

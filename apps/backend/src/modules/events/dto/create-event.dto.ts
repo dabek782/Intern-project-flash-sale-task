@@ -18,9 +18,6 @@ export class CreateEventDto {
   @IsNotEmpty()
   venueAddress!: string;
 
-  @IsDateString()
-  timezone!: string;
-
   @IsEnum(EventStatus)
   status!: EventStatus;
 

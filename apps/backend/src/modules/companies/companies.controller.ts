@@ -1,9 +1,10 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
-import { Request } from 'express';
 import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { JwtAuthGuard } from '../../common/auth-guard';
+import { AuthenticatedRequest } from '../../common/authenticated-request';
+
 
 @Controller({
   path: 'companies',
@@ -11,20 +12,27 @@ import { JwtAuthGuard } from '../../common/auth-guard';
 })
 export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) {}
-
-  getUserIdFromRequest(req: Request & { user?: any }): string {
-    const userId = req.user?.sub;
-    if (!userId) {
-      throw new UnauthorizedException('User id not found in token');
-    }
-    return userId;
-  }
+  
   
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createCompanyDto: CreateCompanyDto, @Req() req: Request & { user?: any }) {
-    const userId = this.getUserIdFromRequest(req);
-    return this.companiesService.create(createCompanyDto , userId);
+  create(@Body() createCompanyDto: CreateCompanyDto, @Req() req:AuthenticatedRequest) {
+    console.log(req.user)
+    const userId = req.user?.userId;
+    console.log('Authenticated user ID:', userId);
+    if (!userId) {
+      throw new UnauthorizedException('User ID not found in request');
+    }
+    return this.companiesService.create(createCompanyDto, userId);
+   
+  }
+  @Get('email/:email')
+  getUserIdByEmail(@Param('email') email:string){
+    return this.companiesService.getUserIdByEmail(email)
+  }
+  @Get('user/:userId')
+  getIdCompanyByUserId(@Param('userId') userId:string ){
+    return this.companiesService.getIdCompanyByIdUser(userId)
   }
 
   @Get()
@@ -42,16 +50,24 @@ export class CompaniesController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCompanyDto: UpdateCompanyDto,
-    @Req() req: Request & { user?: any }
+    @Req() req: AuthenticatedRequest
   ) {
-    const userId = this.getUserIdFromRequest(req);
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new UnauthorizedException('User ID not found in request');
+    }
     return this.companiesService.update(id, updateCompanyDto , userId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request & { user?: any }) {
-    const userId = this.getUserIdFromRequest(req);
+  remove(@Param('id', ParseIntPipe) id: number, @Req() req: AuthenticatedRequest) {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new UnauthorizedException('User ID not found in request');
+    }
     return this.companiesService.remove(id, userId);
   }
+
 }
+//comapnies controllers provides endpoints for companies specifed request

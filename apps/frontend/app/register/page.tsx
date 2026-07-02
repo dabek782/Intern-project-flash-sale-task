@@ -159,3 +159,4 @@ export default function RegisterPage() {
     </main>
   );
 }
+//register/page.tsx is page for register as a user

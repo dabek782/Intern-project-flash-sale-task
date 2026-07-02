@@ -24,11 +24,11 @@ export class TicketsService {
       throw new NotFoundException(`Company with id ${data.companyId} not found`);
     }
 
-    const { companyId, ...ticketData } = data;
+    const { companyId, ...ticket } = data;
 
     return this.prisma.ticket.create({
       data: {
-        ...ticketData,
+        ...ticket,
         companyId: company.id,
         eventId: event.id,
       },
@@ -94,4 +94,16 @@ export class TicketsService {
     await this.findOne(id);
     return this.prisma.ticket.delete({ where: { id } });
   }
+  async getAllCompanyTickets(userId: string): Promise<Ticket[]> {
+    const company = await this.prisma.company.findFirst({
+      where: { createdBy: userId },
+    });
+    const tickets = await this.prisma.ticket.findMany({
+      where:{companyId:company?.id}
+    })
+    return tickets;
+  }
 }
+
+
+//tickets.service.ts allows for creation of tickets and other things
