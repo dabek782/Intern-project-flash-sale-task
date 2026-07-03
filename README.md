@@ -52,8 +52,6 @@ This starts PostgreSQL, Redis, the backend, and the frontend.
    npm run start:dev
    ```
 
-The backend listens on `http://localhost:3000`.
-
 ## Run the frontend locally
 
 ```
@@ -62,12 +60,16 @@ npm install
 npm run dev
 ```
 
-The dev server runs on `http://localhost:3001`. Set `NEXT_PUBLIC_API_URL` if the backend is not available at `http://localhost:3000`.
-
+The dev server runs on `http://localhost:3000` and frontend runs on `http://localhost:3001`
 ## Useful commands
 
 Run from the project root (Turborepo will forward these to each app):
 
 ## Seeding
-There not seeding 
+Seeding works by using command
+```
+npx ts-node prisma/seed.ts
+```
+in cd/apps/backend.
+You need to Database url set in .env in backend
 
