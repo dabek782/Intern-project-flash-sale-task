@@ -14,6 +14,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\""
   },
+  "prisma": {
+  "seed": "npx ts-node prisma/seed.ts"
+},
   "dependencies": {
     "@nestjs/class-transformer": "^0.4.0",
     "@nestjs/common": "11.1.11",

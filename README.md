@@ -1,48 +1,73 @@
-# Zadanie rekrutacyjne: System Rezerwacji Biletów "Flash Sale"
+# Flash Sale Ticketing
 
-Cześć! Dziękujemy za dotychczasowy udział w procesie rekrutacyjnym do zespołu **procforce**. Przechodzimy do etapu technicznego, w którym chcielibyśmy sprawdzić Twoje podejście do projektowania architektury, rozwiązywania problemów ze współbieżnością (concurrency) oraz znajomość nowoczesnego ekosystemu JavaScript/TypeScript.
+Turborepo monorepo with a NestJS backend, a Next.js frontend, PostgreSQL, and Redis. The backend uses Prisma as ORM.
 
-Nie szukamy idealnego produktu gotowego na produkcję, ale chcemy zobaczyć, jak myślisz, jakich narzędzi używasz do rozwiązania konkretnych problemów i jak dbasz o jakość kodu.
+## Prerequisites
 
-## Cel projektu
-Stworzenie uproszczonej aplikacji do sprzedaży limitowanej puli biletów na popularne wydarzenia. Platforma musi być odporna na sytuację, w której wielu użytkowników próbuje kupić ten sam bilet w dokładnie tym samym ułamku sekundy.
+- Docker and Docker Compose
+- Node.js 18+ and npm (only needed if running apps outside Docker)
 
----
+## Environment variables
 
-## Wymagania
+Create a `.env` file in the project root, used by `docker-compose.yaml`:
 
-### 1. Backend (Node.js)
-* **Technologia:** Node.js z wybranym frameworkiem (Express, NestJS, Fastify itp.).
-* **Baza danych:** Dowolna relacyjna (np. PostgreSQL), z wykorzystaniem transakcji.
-* **Race Condition:** Zaimplementuj mechanizm zapobiegający "overbookingowi" (sprzedaniu większej liczby biletów niż zakłada pula) na endpoincie `/reserve`. Oczekujemy wykorzystania transakcji bazodanowych, blokad (Pessimistic/Optimistic Locking) lub rozwiązań in-memory (np. Redis Redlock).
-* **Tymczasowa rezerwacja:** Kliknięcie "Rezerwuj" blokuje bilet dla użytkownika na 5 minut. Jeśli po tym czasie nie zostanie on "opłacony" (możesz to zasymulować oddzielnym endpointem `/pay`), bilet wraca do ogólnodostępnej puli.
-* **Real-time:** Wykorzystaj WebSockets lub Server-Sent Events (SSE), aby emitować na żywo aktualną liczbę dostępnych biletów do wszystkich podłączonych klientów.
+```
+POSTGRES_DB=flashsale
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+```
 
-### 2. Frontend (Next.js + React)
-* **Technologia:** Next.js, React, TypeScript.
-* **Wydajność:** Strona z listą wydarzeń powinna wykorzystywać SSG lub ISR.
-* **Interfejs na żywo:** Strona szczegółów wydarzenia musi wyświetlać dynamiczny licznik dostępnych biletów, aktualizowany w czasie rzeczywistym (nasłuchiwanie na WebSockets/SSE z backendu).
-* **Zarządzanie stanem i UX:** Zaimplementuj obsługę błędu w przypadku odrzucenia transakcji (np. z powodu wyprzedania biletów w trakcie klikania). Oczekujemy płynnego interfejsu wykorzystującego np. Optimistic UI lub odpowiednie zarządzanie stanem asynchronicznym (React Query / SWR / Zustand).
+If running the backend outside Docker, create `apps/backend/.env`:
 
----
+```
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/flashsale
+REDIS_URL=redis://localhost:6379
+SECRET_ACCESS_KEY=change-me
+SECRET_REFRESH_KEY=change-me
+JWT_ACCESS_TOKEN_SECRET=change-me
+```
 
-## Wymagania techniczne i "Plusy"
-* **Projekt musi być napisany w TypeScript.**
-* **Plusem będzie:** Dostarczenie środowiska w Dockerze (`docker-compose.yml` uruchamiający bazę, backend i frontend).
-* **Plusem będzie:** Napisanie testu integracyjnego, który udowadnia, że Twój mechanizm rezerwacji radzi sobie z równoległymi żądaniami i zapobiega overbookingowi.
-* **Plusem będzie:** Podstawowy Rate Limiting na endpoincie rezerwacji.
+## Run with Docker
 
----
+From the project root:
 
-## Informacje organizacyjne
+```
+docker compose up --build
+```
 
-* **Jak zacząć:** Kliknij zielony przycisk **"Use this template"** w prawym górnym rogu tego repozytorium, aby utworzyć własne, **prywatne** repozytorium na swoim koncie GitHub.
-* **Sposób dostarczenia:** Prześlij nam link do swojego wygenerowanego i uzupełnionego repozytorium. W wiadomości mailowej podamy Ci loginy kont GitHub, którym powinieneś nadać uprawnienia "Collaborator", abyśmy mogli przejrzeć Twój kod.
-* **Uruchomienie:** Koniecznie zaktualizuj plik `README.md` w swoim repozytorium dodając jasną, krótką instrukcję, jak uruchomić Twój projekt lokalnie (jak zainstalować zależności, odpalić bazę, zseedować początkowe dane itp.).
-* **Czas na wykonanie:** Proponujemy 3 dni od momentu otrzymania wiadomości. Jeśli potrzebujesz więcej czasu, daj nam znać.
+This starts PostgreSQL, Redis, the backend, and the frontend.
 
-W razie jakichkolwiek pytań technicznych lub wątpliwości dotyczących wymagań – śmiało pisz. Chętnie odpowiemy.
+## Run the backend locally
 
-Powodzenia!  
-**Zespół procforce**
-`
+1. Start PostgreSQL and Redis, e.g.:
+   ```
+   docker compose up postgres redis
+   ```
+2. From the project root:
+   ```
+   cd apps/backend
+   npm install
+   npx prisma generate
+   npx prisma migrate dev
+   npm run start:dev
+   ```
+
+The backend listens on `http://localhost:3000`.
+
+## Run the frontend locally
+
+```
+cd apps/frontend
+npm install
+npm run dev
+```
+
+The dev server runs on `http://localhost:3001`. Set `NEXT_PUBLIC_API_URL` if the backend is not available at `http://localhost:3000`.
+
+## Useful commands
+
+Run from the project root (Turborepo will forward these to each app):
+
+## Seeding
+There not seeding 
+
